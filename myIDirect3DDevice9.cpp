@@ -1,6 +1,7 @@
 #include "StdAfx.h"
+#include "myIDirect3DDevice9.h"
 
-myIDirect3DDevice9::myIDirect3DDevice9(IDirect3DDevice9* pOriginal)
+myIDirect3DDevice9::myIDirect3DDevice9(IDirect3DDevice9* pOriginal) : showHintCount(0)
 {
     m_pIDirect3DDevice9 = pOriginal; // store the pointer to original object
 }
@@ -77,7 +78,12 @@ HRESULT myIDirect3DDevice9::GetDirect3D(IDirect3D9** ppD3D9)
 
 HRESULT myIDirect3DDevice9::GetDeviceCaps(D3DCAPS9* pCaps)
 {
-    return(m_pIDirect3DDevice9->GetDeviceCaps(pCaps));
+	HRESULT hr = m_pIDirect3DDevice9->GetDeviceCaps(pCaps);
+
+	pCaps->VertexShaderVersion = D3DVS_VERSION(1,1);
+	pCaps->PixelShaderVersion = D3DPS_VERSION(0,0);
+
+    return hr;
 }
 
 HRESULT myIDirect3DDevice9::GetDisplayMode(UINT iSwapChain,D3DDISPLAYMODE* pMode)
@@ -668,8 +674,12 @@ HRESULT myIDirect3DDevice9::CreateQuery(D3DQUERYTYPE Type,IDirect3DQuery9** ppQu
 // This is our test function
 void myIDirect3DDevice9::ShowWeAreHere(void)
 {
-	D3DRECT rec = {1,1,50,50};
-	m_pIDirect3DDevice9->Clear(1, &rec, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255,255,255,0),0 ,0);
+	if (showHintCount < 60 * 5) //60fps * 5sec
+	{
+		showHintCount++;
+		D3DRECT rec = { 1,1,50,50 };
+		m_pIDirect3DDevice9->Clear(1, &rec, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 255, 255, 0), 0, 0);
+	}
 }
 
 

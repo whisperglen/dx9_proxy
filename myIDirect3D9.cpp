@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "stdio.h"
 
 myIDirect3D9::myIDirect3D9(IDirect3D9 *pOriginal)
 {
@@ -61,7 +62,20 @@ UINT __stdcall myIDirect3D9::GetAdapterCount(void)
 
 HRESULT __stdcall myIDirect3D9::GetAdapterIdentifier(UINT Adapter,DWORD Flags,D3DADAPTER_IDENTIFIER9* pIdentifier)
 {
-    return(m_pIDirect3D9->GetAdapterIdentifier(Adapter,Flags,pIdentifier));
+	HRESULT hr = m_pIDirect3D9->GetAdapterIdentifier(Adapter, Flags, pIdentifier);
+
+	if (hr == D3D_OK)
+	{
+		TCHAR msg[512];
+		_stprintf(msg, "PROXYDLL: GetAdapterIdentifier <%s> VEN:%x DEV:%x\r\n", pIdentifier->Description, pIdentifier->VendorId, pIdentifier->DeviceId);
+		OutputDebugString(msg);
+		pIdentifier->Description[0] = 0;
+		strcat_s(pIdentifier->Description, "Nvidia GeForce 7900 GS");
+		pIdentifier->VendorId = 0x10DE;
+		pIdentifier->DeviceId = 0x0292;
+	}
+
+	return hr;
 }
 
 UINT __stdcall myIDirect3D9::GetAdapterModeCount(UINT Adapter, D3DFORMAT Format)
